@@ -30,7 +30,11 @@ jobs:
     - name: Build launch.exe
       run: |
         pyinstaller --onefile --icon=icon.ico launch.py
-        Move-Item -Path dist\launch.exe -Destination builds\launch.exe -Force
+        $buildsDir = "builds"
+        if (!(Test-Path $buildsDir)) {
+          New-Item -ItemType Directory -Force -Path $buildsDir
+        }
+        Move-Item -Path dist\launch.exe -Destination "$buildsDir\launch.exe" -Force
 
     - name: Increment version
       id: increment_version
@@ -47,13 +51,10 @@ jobs:
         $newVersion > $versionFile
         echo "::set-output name=new_version::$newVersion"
 
-    - name: Create builds directory
-      run: |
-        New-Item -ItemType Directory -Force -Path builds
-
     - name: Package files
       run: |
-        Compress-Archive -Path builds\launch.exe,git-ripperv3.py -DestinationPath builds\PyGitHubRipper-v-${{ steps.increment_version.outputs.new_version }}.zip
+        $zipFileName = "PyGitHubRipper-v-${{ steps.increment_version.outputs.new_version }}.zip"
+        Compress-Archive -Path "builds\launch.exe", "git-ripperv3.py" -DestinationPath "builds\$zipFileName"
 
     - name: Commit changes
       run: |

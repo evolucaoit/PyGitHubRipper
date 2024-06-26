@@ -2,6 +2,10 @@ import os
 import subprocess
 import sys
 import platform
+import requests
+from bs4 import BeautifulSoup
+import shutil
+import streamlit as st
 
 def main():
     # Obtém o diretório onde este script está localizado

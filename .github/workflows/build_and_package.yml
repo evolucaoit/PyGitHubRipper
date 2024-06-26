@@ -30,7 +30,7 @@ jobs:
     - name: Build launch.exe
       run: |
         pyinstaller --onefile --icon=icon.ico launch.py
-        Move-Item -Path dist\launch.exe -Destination builds\launch.exe
+        Move-Item -Path dist\launch.exe -Destination builds\launch.exe -Force
 
     - name: Increment version
       id: increment_version

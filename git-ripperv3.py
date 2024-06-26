@@ -5,7 +5,7 @@ import os
 import shutil
 import streamlit as st
 
-# Função para obter links de repositórios
+# Function to get repository links
 def get_repo_links(username):
     url = f'https://github.com/{username}?tab=repositories'
     try:
@@ -18,10 +18,10 @@ def get_repo_links(username):
             repo_links.append(f'https://github.com{repo_name}')
         return repo_links
     except requests.RequestException as e:
-        st.error(f'Erro ao acessar {url}: {e}')
+        st.error(f'Error accessing {url}: {e}')
         return []
 
-# Função para clonar repositórios
+# Function to clone repositories
 def clone_repository(repo_url, download_path):
     os.makedirs(download_path, exist_ok=True)
     repo_name = repo_url.split('/')[-1]
@@ -29,13 +29,13 @@ def clone_repository(repo_url, download_path):
     if not os.path.exists(repo_path):
         result = subprocess.run(['git', 'clone', f'{repo_url}.git', repo_path], capture_output=True, text=True)
         if result.returncode == 0:
-            st.write(f'Sucesso ao clonar {repo_name}')
+            st.write(f'Successfully cloned {repo_name}')
         else:
-            st.write(f'Falha ao clonar {repo_name}: {result.stderr}')
+            st.write(f'Failed to clone {repo_name}: {result.stderr}')
     else:
-        st.write(f'Repositório {repo_name} já existe.')
+        st.write(f'Repository {repo_name} already exists.')
 
-# Função para baixar repositório como zip
+# Function to download repository as zip
 def download_as_zip(repo_url, download_path):
     os.makedirs(download_path, exist_ok=True)
     repo_name = repo_url.split('/')[-1]
@@ -47,52 +47,52 @@ def download_as_zip(repo_url, download_path):
             response.raise_for_status()
             with open(repo_path, 'wb') as file:
                 shutil.copyfileobj(response.raw, file)
-            st.write(f'Sucesso ao baixar {repo_name} como zip')
+            st.write(f'Successfully downloaded {repo_name} as zip')
         except requests.RequestException as e:
-            st.write(f'Falha ao baixar {repo_name}: {e}')
+            st.write(f'Failed to download {repo_name}: {e}')
     else:
-        st.write(f'Arquivo {repo_name}.zip já existe.')
+        st.write(f'File {repo_name}.zip already exists.')
 
-# Interface do Streamlit
+# Streamlit interface
 def main():
-    st.sidebar.title('Opções')
-    app_mode = st.sidebar.selectbox('Escolha a ação', ['Baixar todos os repositórios do usuário', 'Baixar repositório específico'])
+    st.sidebar.title('Options')
+    app_mode = st.sidebar.selectbox('Choose an action', ['Download all user repositories', 'Download specific repository'])
 
-    if app_mode == 'Baixar todos os repositórios do usuário':
-        st.header('Baixar todos os repositórios do usuário')
+    if app_mode == 'Download all user repositories':
+        st.header('Download all user repositories')
         username = st.text_input('GitHub Username')
         download_path = st.text_input('Download Path', 'c:/git-rip/')
-        download_option = st.radio('Escolha o formato de download', ('Clonar repositórios', 'Baixar como zip'))
+        download_option = st.radio('Choose download format', ('Clone repositories', 'Download as zip'))
 
         if st.button('Download Repos'):
             if username:
                 repos = get_repo_links(username)
                 if repos:
                     for repo in repos:
-                        if download_option == 'Clonar repositórios':
+                        if download_option == 'Clone repositories':
                             clone_repository(repo, os.path.join(download_path, username, 'repos'))
                         else:
                             download_as_zip(repo, os.path.join(download_path, username, 'repos'))
-                    st.success('Download completo!')
+                    st.success('Download complete!')
                 else:
-                    st.error('Nenhum repositório encontrado ou usuário inválido.')
+                    st.error('No repositories found or invalid user.')
             else:
-                st.error('Por favor, insira um nome de usuário do GitHub.')
+                st.error('Please enter a GitHub username.')
 
-    elif app_mode == 'Baixar repositório específico':
-        st.header('Baixar repositório específico')
-        repo_url = st.text_input('URL do repositório GitHub')
+    elif app_mode == 'Download specific repository':
+        st.header('Download specific repository')
+        repo_url = st.text_input('GitHub repository URL')
         download_path = st.text_input('Download Path', 'c:/git-rip/')
-        download_option = st.radio('Escolha o formato de download', ('Clonar repositório', 'Baixar como zip'))
+        download_option = st.radio('Choose download format', ('Clone repository', 'Download as zip'))
 
         if st.button('Download Repo'):
             if repo_url:
-                if download_option == 'Clonar repositório':
+                if download_option == 'Clone repository':
                     clone_repository(repo_url, download_path)
                 else:
                     download_as_zip(repo_url, download_path)
             else:
-                st.error('Por favor, insira a URL do repositório GitHub.')
+                st.error('Please enter the GitHub repository URL.')
 
 if __name__ == "__main__":
     main()

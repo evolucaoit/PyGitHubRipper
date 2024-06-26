@@ -2,14 +2,14 @@ import os
 import subprocess
 
 def main():
-    # Obtém o diretório atual onde este script está sendo executado
-    root_dir = os.getcwd()
+    # Obtém o diretório onde este script está localizado
+    script_dir = os.path.dirname(os.path.abspath(__file__))
     
-    # Define o arquivo que desejamos executar via Streamlit
-    py_file = "git-ripperv3.py"
-    
+    # Define o diretório onde queremos navegar (a raiz onde o script está)
+    root_dir = script_dir
+
     # Comando para executar o Streamlit usando python3
-    command = f'python3 -m streamlit run "{os.path.join(root_dir, py_file)}"'
+    command = f'python3 -m streamlit run git-ripperv3.py'
 
     # Executa o comando via subprocesso
     subprocess.Popen(command, cwd=root_dir, shell=True)

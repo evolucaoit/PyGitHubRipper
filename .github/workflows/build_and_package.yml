@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - name: Checkout repository
@@ -20,36 +20,38 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install pyinstaller
-        pip install requests beautifulsoup4 streamlit
+        python -m pip install --upgrade pip
+        pip install pyinstaller requests beautifulsoup4 streamlit
 
     - name: Build launch.exe
       run: |
         pyinstaller --onefile launch.py
-        mv dist/launch ./launch.exe
+        move dist\launch.exe .
 
     - name: Increment version
       id: increment_version
       run: |
         VERSION_FILE="VERSION"
-        if [ ! -f $VERSION_FILE ]; then
-          echo "0.0.0" > $VERSION_FILE
-        fi
-        VERSION=$(cat $VERSION_FILE)
-        IFS='.' read -ra ADDR <<< "$VERSION"
-        PATCH=${ADDR[2]}
-        PATCH=$((PATCH + 1))
-        NEW_VERSION="${ADDR[0]}.${ADDR[1]}.$PATCH"
-        echo $NEW_VERSION > $VERSION_FILE
+        if (Test-Path $VERSION_FILE) {
+          $VERSION = Get-Content $VERSION_FILE
+        } else {
+          $VERSION = "0.0.0"
+        }
+        $ADDR = $VERSION -split '\.'
+        $PATCH = [int]$ADDR[2] + 1
+        $NEW_VERSION = "$($ADDR[0]).$($ADDR[1]).$PATCH"
+        $NEW_VERSION > $VERSION_FILE
         echo "::set-output name=new_version::$NEW_VERSION"
 
     - name: Create builds directory
       run: |
-        mkdir -p builds
+        if (-Not (Test-Path -Path builds)) {
+          New-Item -ItemType Directory -Path builds
+        }
 
     - name: Package files
       run: |
-        zip -r "builds/PyGitHubRipper-v-${{ steps.increment_version.outputs.new_version }}.zip" launch.exe git-ripperv3.py
+        Compress-Archive -Path launch.exe,git-ripperv3.py -DestinationPath builds\PyGitHubRipper-v-${{ steps.increment_version.outputs.new_version }}.zip
 
     - name: Commit changes
       run: |
@@ -62,4 +64,4 @@ jobs:
 
     - name: Clean up
       run: |
-        rm -rf dist build __pycache__ launch.spec launch.exe
+        Remove-Item -Recurse -Force dist, build, __pycache__, launch.spec, launch.exe

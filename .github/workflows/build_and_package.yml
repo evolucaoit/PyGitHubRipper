@@ -25,13 +25,13 @@ jobs:
 
     - name: Clean up old build artifacts
       run: |
-        if (Test-Path dist) { Remove-Item -Recurse -Force dist }
-        if (Test-Path build) { Remove-Item -Recurse -Force build }
-        if (Test-Path __pycache__) { Remove-Item -Recurse -Force __pycache__ }
-        if (Test-Path launch.spec) { Remove-Item -Force launch.spec }
-        if (Test-Path launch.exe) { Remove-Item -Force launch.exe }
-        if (Test-Path builds) { Remove-Item -Recurse -Force builds }
-        if (Test-Path icon.ico) { Remove-Item -Force icon.ico }
+        if (Test-Path -Path dist) { Remove-Item -Recurse -Force dist }
+        if (Test-Path -Path build) { Remove-Item -Recurse -Force build }
+        if (Test-Path -Path __pycache__) { Remove-Item -Recurse -Force __pycache__ }
+        if (Test-Path -Path launch.spec) { Remove-Item -Force launch.spec }
+        if (Test-Path -Path launch.exe) { Remove-Item -Force launch.exe }
+        if (Test-Path -Path builds) { Remove-Item -Recurse -Force builds }
+        if (Test-Path -Path icon.ico) { Remove-Item -Force icon.ico }
 
     - name: Copy icon
       run: |
@@ -76,4 +76,9 @@ jobs:
 
     - name: Final clean up
       run: |
-        Remove-Item -Recurse -Force dist, build, __pycache__, launch.spec, launch.exe, icon.ico
+        if (Test-Path -Path dist) { Remove-Item -Recurse -Force dist }
+        if (Test-Path -Path build) { Remove-Item -Recurse -Force build }
+        if (Test-Path -Path __pycache__) { Remove-Item -Recurse -Force __pycache__ }
+        if (Test-Path -Path launch.spec) { Remove-Item -Force launch.spec }
+        if (Test-Path -Path launch.exe) { Remove-Item -Force launch.exe }
+        if (Test-Path -Path icon.ico) { Remove-Item -Force icon.ico }

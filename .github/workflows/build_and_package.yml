@@ -23,10 +23,24 @@ jobs:
         python -m pip install --upgrade pip
         pip install pyinstaller requests beautifulsoup4 streamlit
 
+    - name: Clean up old build artifacts
+      run: |
+        if (Test-Path dist) { Remove-Item -Recurse -Force dist }
+        if (Test-Path build) { Remove-Item -Recurse -Force build }
+        if (Test-Path __pycache__) { Remove-Item -Recurse -Force __pycache__ }
+        if (Test-Path launch.spec) { Remove-Item -Force launch.spec }
+        if (Test-Path launch.exe) { Remove-Item -Force launch.exe }
+        if (Test-Path builds) { Remove-Item -Recurse -Force builds }
+        if (Test-Path icon.ico) { Remove-Item -Force icon.ico }
+
+    - name: Copy icon
+      run: |
+        Copy-Item .\icons\icon.png .\icon.ico
+
     - name: Build launch.exe
       run: |
-        pyinstaller --onefile launch.py
-        move dist\launch.exe .
+        pyinstaller --onefile --icon=icon.ico launch.py
+        Move-Item -Path dist\launch.exe -Destination .\launch.exe
 
     - name: Increment version
       id: increment_version
@@ -45,9 +59,7 @@ jobs:
 
     - name: Create builds directory
       run: |
-        if (-Not (Test-Path -Path builds)) {
-          New-Item -ItemType Directory -Path builds
-        }
+        New-Item -ItemType Directory -Force -Path builds
 
     - name: Package files
       run: |
@@ -62,6 +74,6 @@ jobs:
         git tag "v${{ steps.increment_version.outputs.new_version }}"
         git push origin main --tags
 
-    - name: Clean up
+    - name: Final clean up
       run: |
-        Remove-Item -Recurse -Force dist, build, __pycache__, launch.spec, launch.exe
+        Remove-Item -Recurse -Force dist, build, __pycache__, launch.spec, launch.exe, icon.ico

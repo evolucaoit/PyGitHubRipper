@@ -3,31 +3,32 @@ name: Build and Package Streamlit App
 on:
   push:
     branches:
-      - main
+      - main  # ajuste conforme sua branch principal
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
+    - name: Clean up old build artifacts
+      run: |
+        Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force builds -ErrorAction SilentlyContinue
+
     - name: Checkout repository
       uses: actions/checkout@v2
 
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'
+        python-version: '3.x'  # ajuste conforme sua versão de Python
 
     - name: Install dependencies
       run: |
-        pip install pyinstaller streamlit
+        python -m pip install --upgrade pip
+        python -m pip install pyinstaller requests beautifulsoup4 streamlit
 
-    - name: Clean up old build artifacts
-      run: |
-        Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
-        Remove-Item -Recurse -Force builds -ErrorAction SilentlyContinue
-
-    - name: Build launch.exe
+    - name: Build launch.exe with PyInstaller
       run: |
         pyinstaller --onefile --icon=icon.ico launch.py
         $buildsDir = "builds"
@@ -51,16 +52,22 @@ jobs:
         $newVersion > $versionFile
         echo "::set-output name=new_version::$newVersion"
 
-    - name: Commit changes
+    - name: Package files
       run: |
-        git config --global user.name "github-actions"
-        git config --global user.email "github-actions@github.com"
-        git add .
-        git commit -m "Build and package version ${{ steps.increment_version.outputs.new_version }}"
-        git tag "v${{ steps.increment_version.outputs.new_version }}"
-        git push origin main --tags
+        $zipFileName = "PyStreamlitApp-v-${{ steps.increment_version.outputs.new_version }}.zip"
+        Compress-Archive -Path "builds\launch.exe" -DestinationPath $zipFileName
 
-    - name: Final clean up
+    - name: Configure Git
       run: |
-        Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
-        Remove-Item -Recurse -Force builds -ErrorAction SilentlyContinue
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+
+    - name: Pull latest changes
+      run: git pull origin main
+
+    - name: Commit and push application files
+      if: success()
+      run: |
+        git add $zipFileName
+        git commit -m "Add executable zip for version ${{ steps.increment_version.outputs.new_version }}"
+        git push origin main

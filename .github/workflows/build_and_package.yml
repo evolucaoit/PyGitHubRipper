@@ -24,13 +24,13 @@ jobs:
 
     - name: Clean up old build artifacts
       run: |
-        Remove-Item -Recurse -Force dist
-        Remove-Item -Recurse -Force builds
+        Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force builds -ErrorAction SilentlyContinue
 
     - name: Build launch.exe
       run: |
         pyinstaller --onefile --icon=icon.ico launch.py
-        Move-Item -Path dist\launch.exe -Destination build\launch.exe
+        Move-Item -Path dist\launch.exe -Destination builds\launch.exe
 
     - name: Increment version
       id: increment_version
@@ -53,7 +53,7 @@ jobs:
 
     - name: Package files
       run: |
-        Compress-Archive -Path build\launch.exe,git-ripperv3.py -DestinationPath builds\PyGitHubRipper-v-${{ steps.increment_version.outputs.new_version }}.zip
+        Compress-Archive -Path builds\launch.exe,git-ripperv3.py -DestinationPath builds\PyGitHubRipper-v-${{ steps.increment_version.outputs.new_version }}.zip
 
     - name: Commit changes
       run: |
@@ -66,5 +66,5 @@ jobs:
 
     - name: Final clean up
       run: |
-        Remove-Item -Recurse -Force dist
-        Remove-Item -Recurse -Force builds
+        Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force builds -ErrorAction SilentlyContinue

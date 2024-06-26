@@ -9,11 +9,11 @@ def main():
     root_dir = script_dir
 
     # Abre o prompt de comando do Windows na pasta específica (opcional, pode não ser necessário)
-    subprocess.Popen(['cmd', '/K', 'cd', '/D', root_dir])
+    # subprocess.Popen(['cmd', '/K', 'cd', '/D', root_dir])
 
     # Executa o arquivo git-ripperv3.py usando python -m streamlit run <arquivo>
-    selected_file = "git-ripperv3.py"
-    command = f'python -m streamlit run "{os.path.join(root_dir, selected_file)}"'
+    selected_file = os.path.join(root_dir, 'git-ripperv3.py')
+    command = f'python -m streamlit run "{selected_file}"'
     subprocess.Popen(command, cwd=root_dir, shell=True)
 
 if __name__ == "__main__":

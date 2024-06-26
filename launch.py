@@ -1,5 +1,6 @@
-import os
 import subprocess
+import sys
+import os
 
 def main():
     # Obtém o diretório onde este script está localizado
@@ -8,12 +9,10 @@ def main():
     # Define o diretório onde queremos navegar (a raiz onde o script está)
     root_dir = script_dir
 
-    # Abre o prompt de comando do Windows na pasta específica (opcional, pode não ser necessário)
-    # subprocess.Popen(['cmd', '/K', 'cd', '/D', root_dir])
+    # Comando para executar o Streamlit via linha de comando
+    command = f'python3 -m streamlit run "{os.path.join(root_dir, "git-ripperv3.py")}"'
 
-    # Executa o arquivo git-ripperv3.py usando python -m streamlit run <arquivo>
-    selected_file = os.path.join(root_dir, 'git-ripperv3.py')
-    command = f'python -m streamlit run "{selected_file}"'
+    # Executa o comando via subprocesso
     subprocess.Popen(command, cwd=root_dir, shell=True)
 
 if __name__ == "__main__":

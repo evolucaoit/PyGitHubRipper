@@ -1,0 +1,65 @@
+name: Build and Package PyGitHubRipper
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        pip install pyinstaller
+        pip install requests beautifulsoup4 streamlit
+
+    - name: Build launch.exe
+      run: |
+        pyinstaller --onefile launch.py
+        mv dist/launch ./launch.exe
+
+    - name: Increment version
+      id: increment_version
+      run: |
+        VERSION_FILE="VERSION"
+        if [ ! -f $VERSION_FILE ]; then
+          echo "0.0.0" > $VERSION_FILE
+        fi
+        VERSION=$(cat $VERSION_FILE)
+        IFS='.' read -ra ADDR <<< "$VERSION"
+        PATCH=${ADDR[2]}
+        PATCH=$((PATCH + 1))
+        NEW_VERSION="${ADDR[0]}.${ADDR[1]}.$PATCH"
+        echo $NEW_VERSION > $VERSION_FILE
+        echo "::set-output name=new_version::$NEW_VERSION"
+
+    - name: Create builds directory
+      run: |
+        mkdir -p builds
+
+    - name: Package files
+      run: |
+        zip -r "builds/PyGitHubRipper-v-${{ steps.increment_version.outputs.new_version }}.zip" launch.exe git-ripperv3.py
+
+    - name: Commit changes
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "github-actions@github.com"
+        git add .
+        git commit -m "Build and package version ${{ steps.increment_version.outputs.new_version }}"
+        git tag "v${{ steps.increment_version.outputs.new_version }}"
+        git push origin main --tags
+
+    - name: Clean up
+      run: |
+        rm -rf dist build __pycache__ launch.spec launch.exe

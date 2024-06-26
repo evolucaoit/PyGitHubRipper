@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+import platform
 
 def main():
     # Obtém o diretório onde este script está localizado
@@ -9,15 +10,14 @@ def main():
     # Define o diretório raiz onde o script git-ripperv3.py estará
     root_dir = script_dir
     
-    # Nome do script do Streamlit que será executado
-    streamlit_script = "git-ripperv3.py"
+    # Nome do script do Streamlit que será executado (use caminho absoluto se necessário)
+    streamlit_script = os.path.join(root_dir, "git-ripperv3.py")
     
     try:
-        # Comando para executar o Streamlit usando python no Windows
-        if sys.platform.startswith('win'):
+        # Comando para executar o Streamlit usando python
+        if platform.system() == 'Windows':
             command = f'python -m streamlit run "{streamlit_script}"'
         else:
-            # Comando para executar o Streamlit usando python em outros sistemas
             command = f'python3 -m streamlit run "{streamlit_script}"'
         
         # Executa o comando via subprocesso

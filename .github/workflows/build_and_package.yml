@@ -45,17 +45,17 @@ jobs:
     - name: Increment version
       id: increment_version
       run: |
-        VERSION_FILE="VERSION"
-        if (Test-Path $VERSION_FILE) {
-          $VERSION = Get-Content $VERSION_FILE
+        $versionFile = "VERSION"
+        if (Test-Path $versionFile) {
+          $version = Get-Content $versionFile
         } else {
-          $VERSION = "0.0.0"
+          $version = "0.0.0"
         }
-        $ADDR = $VERSION -split '\.'
-        $PATCH = [int]$ADDR[2] + 1
-        $NEW_VERSION = "$($ADDR[0]).$($ADDR[1]).$PATCH"
-        $NEW_VERSION > $VERSION_FILE
-        echo "::set-output name=new_version::$NEW_VERSION"
+        $addr = $version -split '\.'
+        $patch = [int]$addr[2] + 1
+        $newVersion = "$($addr[0]).$($addr[1]).$patch"
+        $newVersion > $versionFile
+        echo "::set-output name=new_version::$newVersion"
 
     - name: Create builds directory
       run: |

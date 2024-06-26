@@ -20,27 +20,17 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m pip install
         pip install pyinstaller requests beautifulsoup4 streamlit
 
     - name: Clean up old build artifacts
       run: |
-        if (Test-Path -Path dist) { Remove-Item -Recurse -Force dist }
-        if (Test-Path -Path build) { Remove-Item -Recurse -Force build }
-        if (Test-Path -Path __pycache__) { Remove-Item -Recurse -Force __pycache__ }
-        if (Test-Path -Path launch.spec) { Remove-Item -Force launch.spec }
-        if (Test-Path -Path launch.exe) { Remove-Item -Force launch.exe }
-        if (Test-Path -Path builds) { Remove-Item -Recurse -Force builds }
-        if (Test-Path -Path icon.ico) { Remove-Item -Force icon.ico }
-
-    - name: Copy icon
-      run: |
-        Copy-Item .\icons\icon.png .\icon.ico
+        Remove-Item -Recurse -Force dist
+        Remove-Item -Recurse -Force builds
 
     - name: Build launch.exe
       run: |
         pyinstaller --onefile --icon=icon.ico launch.py
-        Move-Item -Path dist\launch.exe -Destination .\launch.exe
+        Move-Item -Path dist\launch.exe -Destination build\launch.exe
 
     - name: Increment version
       id: increment_version
@@ -63,7 +53,7 @@ jobs:
 
     - name: Package files
       run: |
-        Compress-Archive -Path launch.exe,git-ripperv3.py -DestinationPath builds\PyGitHubRipper-v-${{ steps.increment_version.outputs.new_version }}.zip
+        Compress-Archive -Path build\launch.exe,git-ripperv3.py -DestinationPath builds\PyGitHubRipper-v-${{ steps.increment_version.outputs.new_version }}.zip
 
     - name: Commit changes
       run: |
@@ -76,9 +66,5 @@ jobs:
 
     - name: Final clean up
       run: |
-        if (Test-Path -Path dist) { Remove-Item -Recurse -Force dist }
-        if (Test-Path -Path build) { Remove-Item -Recurse -Force build }
-        if (Test-Path -Path __pycache__) { Remove-Item -Recurse -Force __pycache__ }
-        if (Test-Path -Path launch.spec) { Remove-Item -Force launch.spec }
-        if (Test-Path -Path launch.exe) { Remove-Item -Force launch.exe }
-        if (Test-Path -Path icon.ico) { Remove-Item -Force icon.ico }
+        Remove-Item -Recurse -Force dist
+        Remove-Item -Recurse -Force builds

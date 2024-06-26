@@ -1,4 +1,4 @@
-name: Build and Package PyGitHubRipper
+name: Build and Package Streamlit App
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install pyinstaller requests beautifulsoup4 streamlit
+        pip install pyinstaller streamlit
 
     - name: Clean up old build artifacts
       run: |

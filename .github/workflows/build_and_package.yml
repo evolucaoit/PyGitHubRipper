@@ -51,11 +51,6 @@ jobs:
         $newVersion > $versionFile
         echo "::set-output name=new_version::$newVersion"
 
-    - name: Package files
-      run: |
-        $zipFileName = "PyGitHubRipper-v-${{ steps.increment_version.outputs.new_version }}.zip"
-        Compress-Archive -Path "builds\launch.exe", "git-ripperv3.py" -DestinationPath "builds\$zipFileName"
-
     - name: Commit changes
       run: |
         git config --global user.name "github-actions"
